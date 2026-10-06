@@ -1,9 +1,9 @@
-buntu Desktop system hardening report
+Ubuntu Desktop system hardening report
 
 **Course:** Information Security and Assurance 1  
 **Members:** Aaron Angon and Karl Mico A. Velasco  
-**Section:** BM12 
-**Implementation date for controls 1–15:** 6 October 2026  
+**Section:** BM12
+**Implementation date for controls 1–15:** 6 October 2026
 
 ## 1 Introduction
 
@@ -15,25 +15,25 @@ I completed the VM setup and implemented control categories 1–8. Karl Mico A. 
 
 A Google Cloud host provided remote access to a shared KVM guest. We connected to the host through Chrome Remote Desktop and opened the Ubuntu guest console in Virtual Machine Manager. All controls described in this report were applied inside the guest.
 
-| Item | Observed configuration |
-| --- | --- |
-| Cloud host | `isa-lab-host` |
-| Guest name in Virtual Machine Manager | `isa-ubuntu-desktop` |
-| Guest hostname | `isa-pc` |
-| Guest account used for verification | `isa-pc1` |
-| Operating system | Ubuntu 26.04.1 LTS |
-| Virtual hardware model | QEMU Standard PC, Q35 + ICH9 |
-| Processor shown in guest settings | Intel Xeon × 2 |
-| Memory shown in guest settings | 6.0 GiB |
-| Disk capacity shown in guest settings | 42.9 GB |
+| Item                                  | Observed configuration       |
+| ------------------------------------- | ---------------------------- |
+| Cloud host                            | `isa-lab-host`               |
+| Guest name in Virtual Machine Manager | `isa-ubuntu-desktop`         |
+| Guest hostname                        | `isa-pc`                     |
+| Guest account used for verification   | `isa-pc1`                    |
+| Operating system                      | Ubuntu 26.04.1 LTS           |
+| Virtual hardware model                | QEMU Standard PC, Q35 + ICH9 |
+| Processor shown in guest settings     | Intel Xeon × 2               |
+| Memory shown in guest settings        | 6.0 GiB                      |
+| Disk capacity shown in guest settings | 42.9 GB                      |
 
 ![Fresh Ubuntu guest desktop](evidence/base-desktop.png)
 
-*Figure 1. Ubuntu Desktop running in the KVM guest before the documented hardening work.*
+_Figure 1. Ubuntu Desktop running in the KVM guest before the documented hardening work._
 
 ![Guest operating system and virtual hardware](evidence/base-specs.png)
 
-*Figure 2. Guest settings identify Ubuntu 26.04.1 LTS, hostname isa-pc, two virtual processors, 6.0 GiB of memory and 42.9 GB of disk capacity.*
+_Figure 2. Guest settings identify Ubuntu 26.04.1 LTS, hostname isa-pc, two virtual processors, 6.0 GiB of memory and 42.9 GB of disk capacity._
 
 For controls 1–8, I recorded the initial settings, reviewed the relevant CIS recommendations, applied changes with administrative privileges, and verified the resulting configuration. I restarted the guest before checking controls 3–8 to test the settings in a new desktop session. The initial and final terminal outputs were saved in `~/isa-evidence/03-08-before.txt` and `~/isa-evidence/03-08-after.txt`. Configuration backups were stored in `~/isa-evidence/config-backup/`.
 
@@ -45,23 +45,23 @@ Verification was limited to the settings and events shown in the recorded output
 
 ## 3 Summary of the 15 control categories
 
-| No. | Category | Main change | CIS recommendations [1] | Verification scope and limits |
-| --- | --- | --- | --- | --- |
-| 1 | Host-based firewall | Enabled UFW with incoming denial and logging | 4.1.2, 4.1.3, 4.1.5 | Active after restart; no external port scan |
-| 2 | Unnecessary network services | Removed Avahi and dependent `ipp-usb` | 2.1.2 | Packages absent and UDP 5353 listener absent |
-| 3 | Login warning banners | Replaced OS-identifying text with a warning | 1.6.2–3, 1.6.7–8 | Text checked; ownership/mode evidence pending |
-| 4 | Screen locking | Enforced 180-second idle policy and immediate locking | 1.7.3 | Values and key lockdown checked; no timed demonstration |
-| 5 | Removable media handling | Disabled automatic mounting/opening and locked policy | 1.7.4–5 | Values and key lockdown checked; no insertion test |
-| 6 | Scheduled-job access | Created root-only crontab allowlist | 2.4.1.9 | Mode and denied crontab access checked; privileged contents read pending |
-| 7 | Default file permissions | Set umask `027` in shell/login/PAM configuration | 5.4.3.3 | Sample directory `750` and file `640`; PAM arguments retained after later work |
-| 8 | Process debugging | Tightened `ptrace_scope` from `1` to `2` | 1.5.3 | Runtime value retained after restart; original value already acceptable |
-| 9 | Updates and package delivery | HTTPS repositories and daily automatic updates | 1.2.1.11, 1.2.2.1 | Configuration checked; three kernel packages remain upgradable |
-| 10 | AppArmor | Added enforced reader profile and kernel restriction | 1.3.1.2, 1.3.1.4; scoped extension | Allowed/denied reads demonstrated; other profiles still unconfined/complaining |
-| 11 | Bootloader protection | GRUB authentication for editing, normal boot unrestricted | 1.4.1 | Declarations and password presence checked; boot-menu interaction evidence pending |
-| 12 | Network kernel settings | Disabled selected forwarding/redirect/source-route behavior | Selected 3.3.1 and 3.3.2 items | Most selected values retained; two global/default martian-logging failures |
-| 13 | Password quality | Length 14, four classes and quality enforcement | 5.3.2.3, 5.3.3.2.1–8 | PAM/policy checked; rejection/acceptance messages not supplied |
-| 14 | Privilege escalation | Explicit PTY use and zero sudo authentication timeout | 5.2.2, 5.2.6 | Policy and syntax checked; ordinary-user prompting test output pending |
-| 15 | Logging and audit | Persistent journal and selected identity-file audit rules | 6.1.1.1.5–7, 6.2.1.1–2, 6.2.3.12–14 | Loaded rules, real demo event and retained pre-reboot markers checked |
+| No. | Category                     | Main change                                                 | CIS recommendations [1]             | Verification scope and limits                                                      |
+| --- | ---------------------------- | ----------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------- |
+| 1   | Host-based firewall          | Enabled UFW with incoming denial and logging                | 4.1.2, 4.1.3, 4.1.5                 | Active after restart; no external port scan                                        |
+| 2   | Unnecessary network services | Removed Avahi and dependent `ipp-usb`                       | 2.1.2                               | Packages absent and UDP 5353 listener absent                                       |
+| 3   | Login warning banners        | Replaced OS-identifying text with a warning                 | 1.6.2–3, 1.6.7–8                    | Text checked; ownership/mode evidence pending                                      |
+| 4   | Screen locking               | Enforced 180-second idle policy and immediate locking       | 1.7.3                               | Values and key lockdown checked; no timed demonstration                            |
+| 5   | Removable media handling     | Disabled automatic mounting/opening and locked policy       | 1.7.4–5                             | Values and key lockdown checked; no insertion test                                 |
+| 6   | Scheduled-job access         | Created root-only crontab allowlist                         | 2.4.1.9                             | Mode and denied crontab access checked; privileged contents read pending           |
+| 7   | Default file permissions     | Set umask `027` in shell/login/PAM configuration            | 5.4.3.3                             | Sample directory `750` and file `640`; PAM arguments retained after later work     |
+| 8   | Process debugging            | Tightened `ptrace_scope` from `1` to `2`                    | 1.5.3                               | Runtime value retained after restart; original value already acceptable            |
+| 9   | Updates and package delivery | HTTPS repositories and daily automatic updates              | 1.2.1.11, 1.2.2.1                   | Configuration checked; three kernel packages remain upgradable                     |
+| 10  | AppArmor                     | Added enforced reader profile and kernel restriction        | 1.3.1.2, 1.3.1.4; scoped extension  | Allowed/denied reads demonstrated; other profiles still unconfined/complaining     |
+| 11  | Bootloader protection        | GRUB authentication for editing, normal boot unrestricted   | 1.4.1                               | Declarations and password presence checked; boot-menu interaction evidence pending |
+| 12  | Network kernel settings      | Disabled selected forwarding/redirect/source-route behavior | Selected 3.3.1 and 3.3.2 items      | Most selected values retained; two global/default martian-logging failures         |
+| 13  | Password quality             | Length 14, four classes and quality enforcement             | 5.3.2.3, 5.3.3.2.1–8                | PAM/policy checked; rejection/acceptance messages not supplied                     |
+| 14  | Privilege escalation         | Explicit PTY use and zero sudo authentication timeout       | 5.2.2, 5.2.6                        | Policy and syntax checked; ordinary-user prompting test output pending             |
+| 15  | Logging and audit            | Persistent journal and selected identity-file audit rules   | 6.1.1.1.5–7, 6.2.1.1–2, 6.2.3.12–14 | Loaded rules, real demo event and retained pre-reboot markers checked              |
 
 ## 4 Implemented controls
 
@@ -73,7 +73,7 @@ Verification was limited to the settings and events shown in the recorded output
 
 ![Firewall before hardening](evidence/01-firewall-before.png)
 
-*Figure 3. The initial firewall check reports inactive UFW. The same terminal shows the listening-socket inventory.*
+_Figure 3. The initial firewall check reports inactive UFW. The same terminal shows the listening-socket inventory._
 
 #### Implementation
 
@@ -102,7 +102,7 @@ Additional checks returned `enabled` for `systemctl is-enabled ufw.service`, `ac
 
 ![Firewall after hardening](evidence/01-firewall-after.png)
 
-*Figure 4. UFW is active, logging is enabled and incoming traffic is denied by default.*
+_Figure 4. UFW is active, logging is enabled and incoming traffic is denied by default._
 
 #### Rationale and limitations
 
@@ -116,7 +116,7 @@ Both `avahi-daemon.service` and `avahi-daemon.socket` were enabled and active. A
 
 ![Avahi before removal](evidence/02-services-before.png)
 
-*Figure 5. Avahi's service and activation socket are running, with IPv4 and IPv6 UDP port 5353 listeners.*
+_Figure 5. Avahi's service and activation socket are running, with IPv4 and IPv6 UDP port 5353 listeners._
 
 #### Implementation
 
@@ -141,7 +141,7 @@ Both packages were reported as not installed, and the port check returned no mat
 
 ![Avahi removal and verification](evidence/02-services-after.png)
 
-*Figure 6. The package removal completes, the package query confirms both packages are absent, and the final UDP port 5353 check produces no matching output.*
+_Figure 6. The package removal completes, the package query confirms both packages are absent, and the final UDP port 5353 check produces no matching output._
 
 The screenshot also records canceled stop jobs and a temporary socket-activation warning during removal. The final package and socket checks established the resulting state; the initial stop command was not treated as evidence of successful removal.
 
@@ -157,7 +157,7 @@ Removing an unused discovery service reduces the guest's attack surface. The rem
 
 ![Saved initial terminal results for controls 3–8](evidence/03-08-before.png)
 
-*Figure 7. Shared before evidence for controls 3–8, captured while viewing the saved original log in `less`. The output includes the Ubuntu banner text, GNOME settings and writable checks, missing cron access files, umask `0002`, `USERGROUPS_ENAB yes` and `kernel.yama.ptrace_scope = 1`. The GNOME values are unlabeled in this image; their schema/key mappings are documented in the corresponding control sections.*
+_Figure 7. Shared before evidence for controls 3–8, captured while viewing the saved original log in `less`. The output includes the Ubuntu banner text, GNOME settings and writable checks, missing cron access files, umask `0002`, `USERGROUPS_ENAB yes` and `kernel.yama.ptrace_scope = 1`. The GNOME values are unlabeled in this image; their schema/key mappings are documented in the corresponding control sections._
 
 #### Implementation
 
@@ -187,7 +187,7 @@ The warning states the access restriction and removes the operating-system versi
 
 ![Login warning banners after hardening](evidence/03-banners-after.png)
 
-*Figure 8. The after output displays the authorization warning twice, once for each banner file. Compare with the original Ubuntu banner text in Figure 7.*
+_Figure 8. The after output displays the authorization warning twice, once for each banner file. Compare with the original Ubuntu banner text in Figure 7._
 
 #### Additional evidence required
 
@@ -231,11 +231,11 @@ I placed the following key paths in `/etc/dconf/db/local.d/locks/99-isa-screen-l
 
 The new session reported:
 
-| GNOME setting | Value | Writable |
-| --- | --- | --- |
-| `org.gnome.desktop.session idle-delay` | `uint32 180` | `false` |
-| `org.gnome.desktop.screensaver lock-delay` | `uint32 0` | `false` |
-| `org.gnome.desktop.screensaver lock-enabled` | `true` | `false` |
+| GNOME setting                                | Value        | Writable |
+| -------------------------------------------- | ------------ | -------- |
+| `org.gnome.desktop.session idle-delay`       | `uint32 180` | `false`  |
+| `org.gnome.desktop.screensaver lock-delay`   | `uint32 0`   | `false`  |
+| `org.gnome.desktop.screensaver lock-enabled` | `true`       | `false`  |
 
 These were checked using `gsettings get` and `gsettings writable` for the listed schema/key pairs.
 
@@ -245,7 +245,7 @@ A three-minute idle policy with no extra locking delay limits unattended-session
 
 ![Screen-lock settings after hardening](evidence/04-screen-lock-after.png)
 
-*Figure 9. In the recorded check order, the after output shows idle delay `uint32 180`, lock delay `uint32 0`, locking enabled (`true`) and three writable checks returning `false`. Figure 7 contains the saved initial settings.*
+_Figure 9. In the recorded check order, the after output shows idle delay `uint32 180`, lock delay `uint32 0`, locking enabled (`true`) and three writable checks returning `false`. Figure 7 contains the saved initial settings._
 
 ### Control 5 Removable media handling
 
@@ -276,11 +276,11 @@ The following paths were added to `/etc/dconf/db/local.d/locks/99-isa-media`. Th
 
 Checks under `org.gnome.desktop.media-handling` returned:
 
-| Key | Value | Writable |
-| --- | --- | --- |
-| `automount` | `false` | `false` |
-| `automount-open` | `false` | `false` |
-| `autorun-never` | `true` | `false` |
+| Key              | Value   | Writable |
+| ---------------- | ------- | -------- |
+| `automount`      | `false` | `false`  |
+| `automount-open` | `false` | `false`  |
+| `autorun-never`  | `true`  | `false`  |
 
 #### Rationale and limitations
 
@@ -288,7 +288,7 @@ The desktop no longer automatically mounts or opens inserted media, and users ca
 
 ![Removable-media settings after hardening](evidence/05-media-after.png)
 
-*Figure 10. The labeled checks show `automount=false`, `automount-open=false` and `autorun-never=true`; each key's writable check returns `false`. Figure 7 contains the saved initial settings.*
+_Figure 10. The labeled checks show `automount=false`, `automount-open=false` and `autorun-never=true`; each key's writable check returns `false`. Figure 7 contains the saved initial settings._
 
 ### Control 6 Scheduled-job access restrictions
 
@@ -325,7 +325,7 @@ The policy restricts administration of personal cron tables to an approved accou
 
 ![Crontab access restrictions after hardening](evidence/06-cron-after.png)
 
-*Figure 11. The after output shows `/etc/cron.allow` with mode `640` and ownership `root:crontab`, a denied direct read and denied `crontab` access for `isa-pc1`. Figure 7 shows that neither cron access file existed initially.*
+_Figure 11. The after output shows `/etc/cron.allow` with mode `640` and ownership `root:crontab`, a denied direct read and denied `crontab` access for `isa-pc1`. Figure 7 shows that neither cron access file existed initially._
 
 #### Additional evidence required
 
@@ -373,7 +373,7 @@ A restrictive creation default reduces accidental exposure of newly created file
 
 ![Default umask and sample permissions after hardening](evidence/07-umask-after.png)
 
-*Figure 12. The after output shows umask `0027`, mode `750` for the sample directory and mode `640` for its sample file. Figure 7 records the initial umask `0002`.*
+_Figure 12. The after output shows umask `0027`, mode `750` for the sample directory and mode `640` for its sample file. Figure 7 records the initial umask `0002`._
 
 ### Control 8 Process-debugging restrictions
 
@@ -383,7 +383,7 @@ A restrictive creation default reduces accidental exposure of newly created file
 
 ![Saved original process-debugging value](evidence/03-08-before.png)
 
-*Figure 13. The shared baseline screenshot records `kernel.yama.ptrace_scope = 1` in the saved original log. This is the same screenshot used in Figure 7.*
+_Figure 13. The shared baseline screenshot records `kernel.yama.ptrace_scope = 1` in the saved original log. This is the same screenshot used in Figure 7._
 
 #### Implementation
 
@@ -409,7 +409,7 @@ Value `2` restricts ptrace use to processes with `CAP_SYS_PTRACE`, reducing ordi
 
 ![Process-debugging restriction after hardening](evidence/08-ptrace-after.png)
 
-*Figure 14. The after check reports `kernel.yama.ptrace_scope = 2`; the saved initial check in Figure 7 reports `1`.*
+_Figure 14. The after check reports `kernel.yama.ptrace_scope = 2`; the saved initial check in Figure 7 reports `1`._
 
 ### Control 9 Updates and package delivery
 
@@ -423,7 +423,7 @@ Before changing this category, Karl saved `/etc/apt/sources.list.d/ubuntu.source
 
 ![Original update and repository baseline](evidence/09-updates-before.png)
 
-*Figure 15. Saved original repository entries and APT automation settings for control 9. This is a screenshot of the preserved baseline log, not a restored VM.*
+_Figure 15. Saved original repository entries and APT automation settings for control 9. This is a screenshot of the preserved baseline log, not a restored VM._
 
 #### Implementation
 
@@ -466,7 +466,7 @@ Both APT timers returned `enabled`. However, `apt list --upgradable` still liste
 
 ![Update and repository verification after hardening](evidence/09-updates-after.png)
 
-*Figure 16. After evidence for HTTPS repositories, daily update settings and enabled timers. The remaining kernel package upgrades are a documented limitation.*
+_Figure 16. After evidence for HTTPS repositories, daily update settings and enabled timers. The remaining kernel package upgrades are a documented limitation._
 
 #### Rationale and limitations
 
@@ -484,7 +484,7 @@ The baseline collector recorded whether the AppArmor kernel module was enabled, 
 
 ![Original AppArmor baseline](evidence/10-apparmor-before.png)
 
-*Figure 17. Saved original AppArmor module, profile-mode and kernel-restriction checks for control 10.*
+_Figure 17. Saved original AppArmor module, profile-mode and kernel-restriction checks for control 10._
 
 #### Implementation
 
@@ -531,7 +531,7 @@ PASS: private file denied
 
 ![AppArmor configuration and read tests after hardening](evidence/10-apparmor-after.png)
 
-*Figure 18. After evidence for profile modes and the custom reader's allowed/denied access tests. The remaining complain and unconfined profiles limit the scope of the result.*
+_Figure 18. After evidence for profile modes and the custom reader's allowed/denied access tests. The remaining complain and unconfined profiles limit the scope of the result._
 
 #### Rationale and limitations
 
@@ -549,7 +549,7 @@ The baseline recorded GRUB superuser declarations, menu entries and whether a PB
 
 ![Original GRUB protection baseline](evidence/11-grub-before.png)
 
-*Figure 19. Saved original GRUB protection checks. Password values and hashes are excluded from the evidence.*
+_Figure 19. Saved original GRUB protection checks. Password values and hashes are excluded from the evidence._
 
 #### Implementation
 
@@ -578,7 +578,7 @@ The final log [4] shows the `labadmin` superuser declarations, Ubuntu menu entri
 
 ![GRUB protection after hardening](evidence/11-grub-after.png)
 
-*Figure 20. After evidence for the GRUB superuser, password-entry presence and unrestricted normal Ubuntu boot. The hash is omitted.*
+_Figure 20. After evidence for the GRUB superuser, password-entry presence and unrestricted normal Ubuntu boot. The hash is omitted._
 
 #### Rationale and limitations
 
@@ -596,7 +596,7 @@ The preserved baseline includes IPv4 forwarding, redirects, source routing, mart
 
 ![Original network kernel settings](evidence/12-network-before.png)
 
-*Figure 21. Saved original runtime checks for the selected network kernel parameters.*
+_Figure 21. Saved original runtime checks for the selected network kernel parameters._
 
 #### Implementation
 
@@ -640,7 +640,7 @@ The interface-specific values remained `1`. Troubleshooting identified a possibl
 
 ![Network kernel settings after reboot](evidence/12-network-after.png)
 
-*Figure 22. After-reboot network checks, including the two failed `log_martians` comparisons. The output records both failures.*
+_Figure 22. After-reboot network checks, including the two failed `log_martians` comparisons. The output records both failures._
 
 #### Rationale and limitations
 
@@ -658,7 +658,7 @@ The baseline collector saved existing `pam_pwquality` and `pam_umask` entries an
 
 ![Original password-quality baseline](evidence/13-password-before.png)
 
-*Figure 23. Saved original PAM and password-quality checks. An empty or short section should not be interpreted as a functional password test.*
+_Figure 23. Saved original PAM and password-quality checks. An empty or short section should not be interpreted as a functional password test._
 
 #### Implementation
 
@@ -703,7 +703,7 @@ The interactive test stage was completed after an initial failed attempt. Howeve
 
 ![Password-quality configuration after hardening](evidence/13-password-after.png)
 
-*Figure 24. After evidence for the quality policy, enabled PAM module and retained umask configuration. Functional password-test evidence is separate from these configuration checks.*
+_Figure 24. After evidence for the quality policy, enabled PAM module and retained umask configuration. Functional password-test evidence is separate from these configuration checks._
 
 #### Rationale and limitations
 
@@ -721,7 +721,7 @@ The baseline saved the sudo version and explicit `use_pty` or `timestamp_timeout
 
 ![Original sudo baseline](evidence/14-sudo-before.png)
 
-*Figure 25. Saved original sudo version and explicit policy directives.*
+_Figure 25. Saved original sudo version and explicit policy directives._
 
 #### Implementation
 
@@ -755,7 +755,7 @@ Defaults timestamp_timeout=0
 
 ![Sudo policy after hardening](evidence/14-sudo-after.png)
 
-*Figure 26. After evidence for the explicit sudo policy, restricted file access and successful syntax validation.*
+_Figure 26. After evidence for the explicit sudo policy, restricted file access and successful syntax validation._
 
 The separately requested ordinary-user test was `sudo -k`, `sudo true`, then `sudo -n true`. After successful interactive authentication, the final command is expected to fail because a new password is required. The test output was not supplied, leaving the prompting behavior unconfirmed despite the verified configuration. This control did not include a separate sudo logfile, restrictions on `su`, or removal of password-free exceptions.
 
@@ -775,7 +775,7 @@ The baseline saved the combined journald configuration, retained boot list, audi
 
 ![Original logging and audit baseline](evidence/15-logging-before.png)
 
-*Figure 27. Saved original journald settings, boot history and audit state for control 15.*
+_Figure 27. Saved original journald settings, boot history and audit state for control 15._
 
 #### Implementation
 
@@ -824,7 +824,7 @@ The journal boot list retained seven boots, including the current boot beginning
 
 ![Logging and audit checks after hardening](evidence/15-logging-after.png)
 
-*Figure 28. After evidence for explicit journal storage/retention settings, auditd state and retained boot history. Loaded-rule and event screenshots, when available, provide additional detail.*
+_Figure 28. After evidence for explicit journal storage/retention settings, auditd state and retained boot history. Loaded-rule and event screenshots, when available, provide additional detail._
 
 Relevant verification commands were:
 
@@ -849,14 +849,12 @@ The post-reboot checks verified several controls within the stated scope. The cu
 
 However, two areas remained incomplete (due to lack of time): three kernel metapackages were still upgradable, and global/default martian logging returned `0` after reboot despite its configured target of `1`. Other AppArmor profiles also remained unconfined or in complain mode, so the custom profile's successful test cannot be generalized to every application. Functional verification of GRUB authentication, password quality and sudo prompting requires the separate interaction evidence described in those sections.
 
-
 ## 8 References
 
-[1] Center for Internet Security. (2026, August 26). *CIS Ubuntu Linux 26.04 LTS Benchmark* (Version 1.0.0). Supplied course reference PDF. Recommendation numbers and page citations use the document's printed page numbers.
+[1] Center for Internet Security. (2026, August 26). _CIS Ubuntu Linux 26.04 LTS Benchmark_ (Version 1.0.0). Supplied course reference PDF. Recommendation numbers and page citations use the document's printed page numbers.
 
-[2] *Information Security and Assurance 1 Final Project*. Supplied project instructions. Requirements used here: Ubuntu Desktop VM, initial-state examination, at least 15 distinct control categories, CIS-based justification, and annotated before/after evidence.
-
+[2] _Information Security and Assurance 1 Final Project_. Supplied project instructions. Requirements used here: Ubuntu Desktop VM, initial-state examination, at least 15 distinct control categories, CIS-based justification, and annotated before/after evidence.
 
 ## 9 AI usage
 
-AI assisted with research and command interpretation, virtual-machine setup, verification of results, and preparation of this report. 
+AI assisted with research and command interpretation, virtual-machine setup, verification of results, and preparation of this report.
