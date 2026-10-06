@@ -1,10 +1,10 @@
 # Ubuntu Desktop System Hardening Report
 
 **Course:** Information Security and Assurance 1  
-**Members:** Aaron Angon and [partner name]  
+**Members:** Aaron [add full name] and [partner name]  
 **Section:** [add section]  
 **Implementation date for controls 1–8:** 6 October 2026  
-**Status:** Draft — eight categories implemented with before/after screenshots attached; partner sections, member details and supplemental verification remain to be added.
+**Status:** Draft — eight categories implemented; partner sections and some screenshot evidence remain to be added.
 
 ## 1 Introduction
 
@@ -38,7 +38,7 @@ We used a Google Cloud host to provide remote access to a shared KVM guest. Chro
 
 I collected initial settings before changing each category, reviewed the relevant CIS recommendations, applied the changes with administrative privileges, and checked the resulting configuration. I restarted the guest before verifying controls 3–8 so the checks reflected a new desktop session. Before and after terminal output was saved in `~/isa-evidence/03-08-before.txt` and `~/isa-evidence/03-08-after.txt`. Configuration backups were placed in `~/isa-evidence/config-backup/`.
 
-The 13 supplied screenshots cover the desktop, system specifications and before/after evidence for controls 1–8. Controls 3–8 share one before screenshot of the saved original terminal output and have separate after screenshots. The shared before image was captured later while viewing `~/isa-evidence/03-08-before.txt` in `less`; it documents the saved initial results rather than a recreated initial configuration. A terminal value confirms the checked setting, but it does not prove every possible attack or user interaction was tested. The banner ownership/mode check and a privileged read of the cron allowlist are still needed as supplemental evidence.
+The six supplied screenshots cover the desktop, system specifications and controls 1–2. Controls 3–8 below contain the recorded terminal results; their screenshot placeholders must be filled before final submission. A terminal value confirms the checked setting, but it does not prove every possible attack or user interaction was tested.
 
 ## 3 Summary of My Eight Controls
 
@@ -46,12 +46,12 @@ The 13 supplied screenshots cover the desktop, system specifications and before/
 | --- | --- | --- | --- | --- |
 | 1 | Host-based firewall | Enabled UFW with incoming denial and logging | 4.1.2, 4.1.3, 4.1.5 | Before/after screenshots attached |
 | 2 | Unnecessary network services | Removed Avahi and its `ipp-usb` dependency | 2.1.2 | Before/after screenshots attached |
-| 3 | Login warning banners | Replaced OS-identifying text with an authorization warning | 1.6.2, 1.6.3, 1.6.7, 1.6.8 | Shared before/after screenshots attached; ownership/mode evidence pending |
-| 4 | Screen locking | Enforced a 180-second idle policy and immediate locking | 1.7.3 | Shared before/after screenshots attached |
-| 5 | Removable media handling | Disabled automatic mounting/opening and locked the policy | 1.7.4, 1.7.5 | Shared before/after screenshots attached |
-| 6 | Scheduled-job access | Created a root-only crontab allowlist | 2.4.1.9 | Shared before/after screenshots attached; privileged allowlist read pending |
-| 7 | Default file permissions | Changed the default umask to `027` | 5.4.3.3 | Shared before/after screenshots attached |
-| 8 | Process debugging restrictions | Tightened `ptrace_scope` from `1` to `2` | 1.5.3 | Shared before/after screenshots attached |
+| 3 | Login warning banners | Replaced OS-identifying text with an authorization warning | 1.6.2, 1.6.3, 1.6.7, 1.6.8 | Terminal results recorded; screenshots pending |
+| 4 | Screen locking | Enforced a 180-second idle policy and immediate locking | 1.7.3 | Terminal results recorded; screenshots pending |
+| 5 | Removable media handling | Disabled automatic mounting/opening and locked the policy | 1.7.4, 1.7.5 | Terminal results recorded; screenshots pending |
+| 6 | Scheduled-job access | Created a root-only crontab allowlist | 2.4.1.9 | Terminal results recorded; screenshots pending |
+| 7 | Default file permissions | Changed the default umask to `027` | 5.4.3.3 | Terminal results recorded; screenshots pending |
+| 8 | Process debugging restrictions | Tightened `ptrace_scope` from `1` to `2` | 1.5.3 | Terminal results recorded; screenshots pending |
 
 ## 4 Implemented Controls
 
@@ -127,10 +127,6 @@ The screenshot also records canceled stop jobs and a temporary socket-activation
 
 **Before.** `/etc/issue` contained `Ubuntu 26.04.1 LTS \n \l`, and `/etc/issue.net` contained `Ubuntu 26.04.1 LTS`. These identified the operating system and did not provide an authorization warning.
 
-![Saved initial terminal results for controls 3–8](evidence/03-08-before.png)
-
-*Figure 7. Shared before evidence for controls 3–8, captured while viewing the saved original log in `less`. The output includes the Ubuntu banner text, GNOME settings and writable checks, missing cron access files, umask `0002`, `USERGROUPS_ENAB yes` and `kernel.yama.ptrace_scope = 1`. The GNOME values are unlabeled in this image; their schema/key mappings are documented in the corresponding control sections.*
-
 **Change.** I replaced both files with the same warning and set their ownership and permissions:
 
 ```bash
@@ -151,11 +147,7 @@ ISA Project Group lab system. Authorized users only. Activity may be logged.
 
 **Reason and tradeoff.** The warning communicates intended access and removes the version-identifying banner text. It does not enforce authentication or prove that activity is actually logged. Editing `/etc/issue.net` alone also does not configure an SSH login banner; that separate behavior was not claimed or tested [1, §§1.6.2–1.6.3, pp. 226–229; §§1.6.7–1.6.8, pp. 237–240].
 
-![Login warning banners after hardening](evidence/03-banners-after.png)
-
-*Figure 8. The after output displays the authorization warning twice, once for each banner file. Compare with the original Ubuntu banner text in Figure 7.*
-
-**Supplemental evidence needed.** This image confirms the banner text but does not show ownership or permissions. Capture `stat -c '%a %U:%G %n' /etc/issue /etc/issue.net` to verify the configured `644 root:root` state.
+**Screenshot placeholders:** Add `03-banners-before.png` and `03-banners-after.png`. Include `stat -c '%a %U:%G %n' /etc/issue /etc/issue.net` in the after evidence to confirm the configured ownership and mode.
 
 ### Control 4 Enforced Screen Locking
 
@@ -199,9 +191,7 @@ These were checked using `gsettings get` and `gsettings writable` for the listed
 
 **Reason and tradeoff.** A three-minute idle policy with no extra locking delay limits unattended-session access. Locking the keys prevents ordinary users from changing that policy through GNOME settings. The shorter idle period can interrupt reading or demonstrations. Configuration and key lockdown were verified, but a timed idle-lock demonstration was not captured [1, §1.7.3, pp. 261–265].
 
-![Screen-lock settings after hardening](evidence/04-screen-lock-after.png)
-
-*Figure 9. In the recorded check order, the after output shows idle delay `uint32 180`, lock delay `uint32 0`, locking enabled (`true`) and three writable checks returning `false`. Figure 7 contains the saved initial settings.*
+**Screenshot placeholders:** Add `04-screen-lock-before.png` and `04-screen-lock-after.png`, showing the settings and writable checks.
 
 ### Control 5 Removable Media Handling
 
@@ -234,9 +224,7 @@ The following paths were added to `/etc/dconf/db/local.d/locks/99-isa-media`. Th
 
 **Reason and tradeoff.** The desktop no longer automatically mounts or opens inserted media, and users cannot override the selected GNOME policy. Legitimate media may require an explicit mounting action. This is not a blanket USB-device ban, and no physical-media insertion test was recorded. Automatic-mount restrictions are Level 2 workstation recommendations, while autorun prevention is Level 1 [1, §§1.7.4–1.7.5, pp. 266–272].
 
-![Removable-media settings after hardening](evidence/05-media-after.png)
-
-*Figure 10. The labeled checks show `automount=false`, `automount-open=false` and `autorun-never=true`; each key's writable check returns `false`. Figure 7 contains the saved initial settings.*
+**Screenshot placeholders:** Add `05-media-before.png` and `05-media-after.png` using the three value checks and three writable checks.
 
 ### Control 6 Restrict Scheduled-Job Access
 
@@ -263,11 +251,7 @@ The mode and ownership match the selected benchmark guidance. The ordinary accou
 
 **Reason and tradeoff.** The policy restricts administration of personal cron tables to an approved account. Ordinary users lose the ability to create or modify their own cron jobs through `crontab`. This does not disable the cron daemon or establish that pre-existing scheduled jobs were removed [1, §2.4.1.9, pp. 388–391].
 
-![Crontab access restrictions after hardening](evidence/06-cron-after.png)
-
-*Figure 11. The after output shows `/etc/cron.allow` with mode `640` and ownership `root:crontab`, a denied direct read and denied `crontab` access for `isa-pc1`. Figure 7 shows that neither cron access file existed initially.*
-
-**Supplemental evidence needed.** Capture `sudo cat /etc/cron.allow` to confirm that the allowlist contains only `root`; the denied ordinary-user read in Figure 11 does not show its contents.
+**Screenshot placeholders:** Add `06-cron-before.png` and `06-cron-after.png`. Use `stat`, `sudo cat /etc/cron.allow` and an ordinary-user `crontab -l` for the after image.
 
 ### Control 7 Restrictive Default File Permissions
 
@@ -301,9 +285,7 @@ The directory allows its owner full access and its group read/traverse access; t
 
 **Reason and tradeoff.** A restrictive creation default reduces accidental exposure of newly created files. Group collaboration may require deliberate permission changes. This does not retroactively change existing files and remains a default that a user can change for their own process. Future PAM regeneration may remove the custom arguments, so my partner's password-policy work must preserve and recheck them [1, §5.4.3.3, pp. 756–761].
 
-![Default umask and sample permissions after hardening](evidence/07-umask-after.png)
-
-*Figure 12. The after output shows umask `0027`, mode `750` for the sample directory and mode `640` for its sample file. Figure 7 records the initial umask `0002`.*
+**Screenshot placeholders:** Add `07-umask-before.png` and `07-umask-after.png`, including the new-session mask and sample file/directory modes.
 
 ### Control 8 Restrict Process Debugging
 
@@ -325,9 +307,7 @@ kernel.yama.ptrace_scope = 2
 
 **Reason and tradeoff.** Value `2` restricts ptrace use to processes with `CAP_SYS_PTRACE`, reducing ordinary-user debugging access to processes. It can prevent legitimate debugging tools from working without elevated privileges. The persistent runtime setting was verified, but an attempted debugger attachment was not tested [1, §1.5.3, pp. 188–192].
 
-![Process-debugging restriction after hardening](evidence/08-ptrace-after.png)
-
-*Figure 13. The after check reports `kernel.yama.ptrace_scope = 2`; the saved initial check in Figure 7 reports `1`.*
+**Screenshot placeholders:** Add `08-ptrace-before.png` and `08-ptrace-after.png`, showing the sysctl value before and after reboot.
 
 ## 5 Partner Contribution
 
@@ -416,19 +396,18 @@ My eight categories changed the guest's security configuration in several ways: 
 
 Some defaults were already secure. Screen locking and autorun prevention were already enabled, and `ptrace_scope=1` already satisfied the benchmark's acceptable-value check. In those cases, the work enforced or tightened the policy rather than correcting a falsely reported failure.
 
-Eight categories have been implemented and checked at the scope described above, with before/after screenshots now attached for all eight. The project is not yet complete: seven partner categories remain, the banner ownership/mode and root-only cron allowlist contents need supplemental evidence, and the combined configuration needs final verification after the partner's changes. These remaining items must be completed before stating that the group has met the minimum of 15 documented categories.
+Eight categories have been implemented and checked at the scope described above. The project is not yet complete: seven partner categories remain, screenshots for controls 3–8 need to be attached, and the combined configuration needs final verification after the partner's changes. These remaining items must be completed before stating that the group has met the minimum of 15 documented categories.
 
 <!-- Replace this draft conclusion with a combined conclusion after controls 9–15 and final checks are complete. -->
 
-## 7 Submission Checklist
+## 7 Evidence Still Needed Before Submission
 
 - [ ] Fill in both members' full names and the section.
-- [x] Attach and caption before/after screenshots for controls 1–8, identifying Figure 7 as a later screenshot of the saved original before log.
+- [ ] Attach before/after screenshots for controls 3–8. Use the saved original before output; clearly label any later screenshot of saved logs. Do not present a recreated configuration as original before evidence.
 - [ ] Capture a privileged read of `/etc/cron.allow` and the banner ownership/mode checks.
 - [ ] Add the partner's actual sections and captioned screenshots for controls 9–15.
 - [ ] Verify that earlier controls remain in place after the password-policy work and final reboot.
-- [x] Update the current evidence summary and conclusion to reflect the attached screenshots for eight implemented categories.
-- [ ] Update the combined results, control count and conclusion after controls 9–15 and final verification are complete.
+- [ ] Update the results, control count and conclusion from the completed evidence.
 - [ ] Remove draft placeholders and this checklist from the submission copy once resolved.
 
 ## 8 References
